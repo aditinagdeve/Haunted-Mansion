@@ -1,0 +1,13 @@
+# Compiled C++ files
+*.exe
+*.o
+*.obj
+
+# Build folders
+build/
+cmake-build-*/
+
+# Editor and system files
+.vscode/
+.DS_Store
+Thumbs.db
