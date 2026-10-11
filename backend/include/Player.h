@@ -1,28 +1,25 @@
-#ifndef PLAYER_H
-#define PLAYER_H
-
+#pragma once
 #include "Character.h"
 #include <string>
 #include <vector>
 
 class Player : public Character {
-private:
-    int score;
-    std::vector<std::string> inventory;
-
 public:
-    explicit Player(std::string playerName);
+    explicit Player(const std::string& name = "Explorer");
 
+    std::string getType() const override;
     int getScore() const;
+    const std::vector<std::string>& getInventory() const;
 
-    void takeDamage(int damage);
-    void addScore(int points);
+    void takeDamage(int amount);
+    void heal(int amount);
+    void addScore(int amount);
+    bool addItem(const std::string& itemName);
+    bool hasItem(const std::string& itemName) const;
+    bool removeItem(const std::string& itemName);
+    void reset();
 
-    void collectItem(const std::string& item);
-    void displayInventory() const;
-
-    bool hasItem(const std::string& item) const;
-    int countItems(const std::string& item) const;
+private:
+    int score_;
+    std::vector<std::string> inventory_;
 };
-
-#endif
