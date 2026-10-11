@@ -4,13 +4,14 @@ project(HauntedMansion LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(HauntedMansion
     main.cpp
     src/Game.cpp
-    src/Room.cpp
-    src/Player.cpp
     src/Ghost.cpp
+    src/Player.cpp
+    src/Room.cpp
     src/item.cpp
     src/puzzle.cpp
 )
