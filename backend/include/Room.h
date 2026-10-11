@@ -1,39 +1,45 @@
+
 #ifndef ROOM_H
 #define ROOM_H
 
 #include <string>
 #include <vector>
-using namespace std;
 
 class Room {
 private:
     int id;
-    string name;
-    string description;
-    vector<int> connections;
-    string item;
+    std::string name;
+    std::string description;
+    std::vector<int> connections;
+    std::string item;
     bool ghostActive;
     bool puzzleActive;
     bool visited;
-    string puzzleQuestion;
-    string puzzleAnswer;
+    std::string puzzleQuestion;
+    std::string puzzleAnswer;
 
 public:
-    Room(int roomId, string roomName, string roomDescription,
-         vector<int> roomConnections, string roomItem = "",
-         bool ghost = false, bool puzzle = false,
-         string question = "", string answer = "");
+    Room(int roomId, std::string roomName,
+         std::string roomDescription,
+         std::vector<int> roomConnections,
+         std::string roomItem = "",
+         bool ghost = false,
+         bool puzzle = false,
+         std::string question = "",
+         std::string answer = "");
 
     int getId() const;
-    string getName() const;
-    string getDescription() const;
-    vector<int> getConnections() const;
-    string getItem() const;
+    std::string getName() const;
+    std::string getDescription() const;
+    std::vector<int> getConnections() const;
+    std::string getItem() const;
+
     bool hasGhost() const;
     bool hasPuzzle() const;
     bool isVisited() const;
-    string getPuzzleQuestion() const;
-    string getPuzzleAnswer() const;
+
+    std::string getPuzzleQuestion() const;
+    std::string getPuzzleAnswer() const;
 
     void setVisited(bool value);
     void removeItem();
@@ -42,3 +48,4 @@ public:
 };
 
 #endif
+
