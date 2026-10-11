@@ -1,25 +1,12 @@
 
 
 #include "Item.h"
-#include <iostream>
 
-Item::Item(const std::string& name,
-           const std::string& description,
-           ItemType type)
-    : name(name), description(description), type(type) {}
+Item::Item(const std::string& id, const std::string& name,
+           const std::string& description, const std::string& kind)
+    : id_(id), name_(name), description_(description), kind_(kind) {}
 
-std::string Item::getName() const {
-    return name;
-}
-
-std::string Item::getDescription() const {
-    return description;
-}
-
-ItemType Item::getType() const {
-    return type;
-}
-
-void Item::display() const {
-    std::cout << name << ": " << description << '\n';
-}
+const std::string& Item::getId() const { return id_; }
+const std::string& Item::getName() const { return name_; }
+const std::string& Item::getDescription() const { return description_; }
+const std::string& Item::getKind() const { return kind_; }
