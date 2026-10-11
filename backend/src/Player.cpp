@@ -1,90 +1,60 @@
-#include "Player.h"
-#include <iostream>
+#include "../include/Player.h"
+
 #include <algorithm>
+#include <iostream>
+#include <utility>
 
-using namespace std;
+Player::Player(std::string playerName)
+    : Character(std::move(playerName), 100), score(0) {}
 
-Player::Player(string playerName)
-{
-    name = playerName;
-    health = 100;
-    score = 0;
-}
-
-string Player::getName() const
-{
-    return name;
-}
-
-int Player::getHealth() const
-{
-    return health;
-}
-
-int Player::getScore() const
-{
+int Player::getScore() const {
     return score;
 }
 
-void Player::takeDamage(int damage)
-{
-    if (damage < 0)
+void Player::takeDamage(int damage) {
+    if (damage <= 0) {
         return;
+    }
 
-    health -= damage;
+    Character::takeDamage(damage);
 
-    if (health < 0)
-        health = 0;
-
-    cout << name << " took " << damage
-         << " damage!" << endl;
-
-    cout << "Current health: "
-         << health << endl;
+    std::cout << name << " took " << damage << " damage!\n";
+    std::cout << "Current health: " << health << '\n';
 }
 
-void Player::addScore(int points)
-{
+void Player::addScore(int points) {
     score += points;
 
-    if (score < 0)
+    if (score < 0) {
         score = 0;
+    }
 }
 
-void Player::collectItem(const string& item)
-{
+void Player::collectItem(const std::string& item) {
     inventory.push_back(item);
-
-    cout << name << " collected: "
-         << item << endl;
+    std::cout << name << " collected: " << item << '\n';
 }
 
-void Player::displayInventory() const
-{
-    cout << "\n--- Player Inventory ---\n";
+void Player::displayInventory() const {
+    std::cout << "\n--- Player Inventory ---\n";
 
-    if (inventory.empty())
-    {
-        cout << "Inventory is empty.\n";
+    if (inventory.empty()) {
+        std::cout << "Inventory is empty.\n";
         return;
     }
 
-    for (const string& item : inventory)
-    {
-        cout << "- " << item << endl;
+    for (const std::string& item : inventory) {
+        std::cout << "- " << item << '\n';
     }
 }
 
-bool Player::hasItem(const string& item) const
-{
-    return find(inventory.begin(),
-                inventory.end(),
-                item) != inventory.end();
+bool Player::hasItem(const std::string& item) const {
+    return std::find(inventory.begin(), inventory.end(), item)
+           != inventory.end();
 }
 
-int Player::countItems(const string& item) const
-{
-    return count(inventory.begin(),
-                 inventory.end(),
-                 item);
+int Player::countItems(const std::string& item) const {
+    return static_cast<int>(
+        std::count(inventory.begin(), inventory.end(), item)
+    );
 }
