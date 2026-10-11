@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d12">
+  <title>Secrets of Ravenwood</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Secrets of Ravenwood home">
+      <span class="brand-mark">R</span>
+      <span><strong>RAVENWOOD</strong><small>THE MANOR REMEMBERS</small></span>
+    </a>
+    <div class="status-pill"><span id="status-dot" class="status-dot"></span><span id="connection">Connecting to game engine…</span></div>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <p class="eyebrow">AN INTERACTIVE HORROR ADVENTURE</p>
+      <h1>Secrets of <em>Ravenwood</em></h1>
+      <p class="hero-copy">The doors have locked behind you. The house is awake. Find the relics, solve the riddle, and escape before the manor claims you.</p>
+    </section>
+
+    <section class="stats" aria-label="Player stats">
+      <article class="stat-card"><span class="stat-label">EXPLORER</span><strong id="player-name">Explorer</strong><small>LAST ONE INSIDE</small></article>
+      <article class="stat-card"><span class="stat-label">VITALITY</span><div class="health-line"><strong id="health-value">100</strong><span>/ 100</span></div><div class="health-track"><div id="health-bar" class="health-fill"></div></div></article>
+      <article class="stat-card"><span class="stat-label">DISCOVERY SCORE</span><strong id="score-value">0</strong><small>POINTS EARNED</small></article>
+    </section>
+
+    <section class="game-grid">
+      <article class="panel room-panel">
+        <div class="panel-heading"><div><p class="eyebrow">CURRENT LOCATION</p><h2 id="room-name">Grand Foyer</h2></div><span class="room-index" id="room-index">01 / 04</span></div>
+        <div class="room-art" id="room-art" role="img" aria-label="Atmospheric haunted mansion illustration">
+          <div class="moon"></div><div class="silhouette"></div><div class="floor"></div>
+          <div class="art-label" id="art-label">THE GRAND FOYER</div>
+        </div>
+        <p class="room-description" id="room-description">The manor waits in silence.</p>
+        <div class="message" aria-live="polite"><span class="message-icon">✦</span><span id="game-message">The house is waiting…</span></div>
+        <div class="section-title">PASSAGES <span>Choose your next move</span></div>
+        <div id="exits" class="exit-list"></div>
+      </article>
+
+      <aside class="side-column">
+        <article class="panel">
+          <div class="section-title">INVENTORY <span id="inventory-count">0 ITEMS</span></div>
+          <div id="inventory" class="inventory"><p class="muted">Your pockets are empty.</p></div>
+          <button id="potion-button" class="button button-secondary" type="button">Use healing potion</button>
+        </article>
+        <article class="panel encounter-panel">
+          <div class="section-title">ROOM DISCOVERY <span>INVESTIGATE</span></div>
+          <div id="discovery-content" class="discovery-content"><p class="muted">Search each room carefully.</p></div>
+          <div id="discovery-actions" class="action-list"></div>
+        </article>
+        <article class="panel">
+          <div class="section-title">YOUR OBJECTIVE <span>ESCAPE PLAN</span></div>
+          <ul class="objectives">
+            <li id="objective-key">Find the Silver Key</li>
+            <li id="objective-puzzle">Solve the library riddle</li>
+            <li id="objective-ghost">Overcome the basement ghost</li>
+            <li id="objective-relic">Claim the Raven Emblem</li>
+            <li id="objective-escape">Return to the foyer</li>
+          </ul>
+        </article>
+      </aside>
+    </section>
+    <footer class="footer"><span>SECRETS OF RAVENWOOD</span><span>AN OOP C++ PROJECT</span><button id="restart-button" class="text-button" type="button">↻ Restart game</button></footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
