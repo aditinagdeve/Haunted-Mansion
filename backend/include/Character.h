@@ -1,3 +1,4 @@
+
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
@@ -23,12 +24,14 @@ public:
     }
 
     void takeDamage(int damage) {
-        if (damage > 0) {
-            health -= damage;
+        if (damage <= 0) {
+            return;
+        }
 
-            if (health < 0) {
-                health = 0;
-            }
+        health -= damage;
+
+        if (health < 0) {
+            health = 0;
         }
     }
 
