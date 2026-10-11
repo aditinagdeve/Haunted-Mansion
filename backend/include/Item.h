@@ -1,33 +1,21 @@
 
-#ifndef ITEM_H
-#define ITEM_H
 
+    #pragma once
 #include <string>
 
-enum class ItemType {
-    Key,
-    Potion,
-    Clue,
-    SoulSeal,
-    Lantern
-};
-
 class Item {
-private:
-    std::string name;
-    std::string description;
-    ItemType type;
-
 public:
-    Item(const std::string& name,
-         const std::string& description,
-         ItemType type);
+    Item(const std::string& id, const std::string& name,
+         const std::string& description, const std::string& kind);
 
-    std::string getName() const;
-    std::string getDescription() const;
-    ItemType getType() const;
+    const std::string& getId() const;
+    const std::string& getName() const;
+    const std::string& getDescription() const;
+    const std::string& getKind() const;
 
-    void display() const;
+private:
+    std::string id_;
+    std::string name_;
+    std::string description_;
+    std::string kind_;
 };
-
-#endif
