@@ -1,44 +1,34 @@
-
-#ifndef GHOST_H
-#define GHOST_H
-
+#pragma once
+#include "Character.h"
 #include <string>
 
-class Ghost {
-protected:
-    std::string name;
-    int damage;
-
+class Ghost : public Character {
 public:
-    Ghost(const std::string& name, int damage);
-    virtual ~Ghost();
+    Ghost(const std::string& name, int strength, const std::string& description);
+    std::string getType() const override;
+    int getStrength() const;
+    const std::string& getDescription() const;
+    bool isDefeated() const;
+    virtual std::string haunt() const;
+    void defeat();
 
-    std::string getName() const;
-    int getDamage() const;
-
-    virtual std::string encounterMessage() const = 0;
-    virtual std::string attackMessage() const = 0;
+private:
+    int strength_;
+    std::string description_;
+    bool defeated_;
 };
 
 class LibraryGhost : public Ghost {
 public:
     LibraryGhost();
-    std::string encounterMessage() const override;
-    std::string attackMessage() const override;
+    std::string getType() const override;
+    std::string haunt() const override;
 };
 
-class WardenGhost : public Ghost {
+class BasementGhost : public Ghost {
 public:
-    WardenGhost();
-    std::string encounterMessage() const override;
-    std::string attackMessage() const override;
+    BasementGhost();
+    std::string getType() const override;
+    std::string haunt() const override;
 };
 
-class GuardianSpirit : public Ghost {
-public:
-    GuardianSpirit();
-    std::string encounterMessage() const override;
-    std::string attackMessage() const override;
-};
-
-#endif
