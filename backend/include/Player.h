@@ -1,34 +1,28 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "Character.h"
 #include <string>
 #include <vector>
 
-using namespace std;
-
-class Player
-{
+class Player : public Character {
 private:
-    string name;
-    int health;
     int score;
-    vector<string> inventory;
+    std::vector<std::string> inventory;
 
 public:
-    Player(string playerName);
+    explicit Player(std::string playerName);
 
-    string getName() const;
-    int getHealth() const;
     int getScore() const;
 
     void takeDamage(int damage);
     void addScore(int points);
 
-    void collectItem(const string& item);
+    void collectItem(const std::string& item);
     void displayInventory() const;
 
-    bool hasItem(const string& item) const;
-    int countItems(const string& item) const;
+    bool hasItem(const std::string& item) const;
+    int countItems(const std::string& item) const;
 };
 
 #endif
