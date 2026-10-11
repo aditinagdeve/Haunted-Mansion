@@ -1,23 +1,20 @@
 
-#ifndef PUZZLE_H
-#define PUZZLE_H
-
+#pragma once
 #include <string>
-using namespace std;
 
 class Puzzle {
-private:
-    string question;
-    string answer;
-    bool solved;
-
 public:
-    Puzzle(string q, string a);
+    Puzzle(const std::string& question, const std::string& answer,
+           const std::string& hint);
 
-    string getQuestion() const;
+    const std::string& getQuestion() const;
+    const std::string& getHint() const;
     bool isSolved() const;
+    bool checkAnswer(const std::string& answer);
 
-    bool solve(string playerAnswer);
+private:
+    std::string question_;
+    std::string answer_;
+    std::string hint_;
+    bool solved_;
 };
-
-#endif
