@@ -1,12 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(HauntedMansion LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-add_executable(HauntedMansion
+add_executable(ravenwood
     main.cpp
     src/Game.cpp
     src/Ghost.cpp
@@ -15,7 +7,13 @@ add_executable(HauntedMansion
     src/item.cpp
     src/puzzle.cpp
 )
-
-target_include_directories(HauntedMansion PRIVATE
-    include
+target_include_directories(ravenwood PRIVATE include)
+target_link_libraries(ravenwood PRIVATE nlohmann_json::nlohmann_json httplib::httplib)
+target_compile_definitions(ravenwood PRIVATE
+    RAVENWOOD_FRONTEND_DIR="${CMAKE_SOURCE_DIR}/frontend"
 )
+if(MSVC)
+    target_compile_options(ravenwood PRIVATE /W4)
+else()
+    target_compile_options(ravenwood PRIVATE -Wall -Wextra -Wpedantic)
+endif()
