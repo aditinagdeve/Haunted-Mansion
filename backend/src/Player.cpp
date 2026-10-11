@@ -1,60 +1,38 @@
-#include "../include/Player.h"
-
+#include "Player.h"
 #include <algorithm>
-#include <iostream>
-#include <utility>
 
-Player::Player(std::string playerName)
-    : Character(std::move(playerName), 100), score(0) {}
+Player::Player(const std::string& name)
+    : Character(name.empty() ? "Explorer" : name, 100), score_(0) {}
 
-int Player::getScore() const {
-    return score;
+std::string Player::getType() const { return "Player"; }
+int Player::getScore() const { return score_; }
+const std::vector<std::string>& Player::getInventory() const { return inventory_; }
+
+void Player::takeDamage(int amount) {
+    if (amount > 0) setHealth(std::max(0, health_ - amount));
 }
-
-void Player::takeDamage(int damage) {
-    if (damage <= 0) {
-        return;
-    }
-
-    Character::takeDamage(damage);
-
-    std::cout << name << " took " << damage << " damage!\n";
-    std::cout << "Current health: " << health << '\n';
+void Player::heal(int amount) {
+    if (amount > 0 && isAlive()) setHealth(std::min(100, health_ + amount));
 }
-
-void Player::addScore(int points) {
-    score += points;
-
-    if (score < 0) {
-        score = 0;
-    }
+void Player::addScore(int amount) {
+    if (amount > 0) score_ += amount;
 }
-
-void Player::collectItem(const std::string& item) {
-    inventory.push_back(item);
-    std::cout << name << " collected: " << item << '\n';
+bool Player::addItem(const std::string& itemName) {
+    if (itemName.empty() || hasItem(itemName)) return false;
+    inventory_.push_back(itemName);
+    return true;
 }
-
-void Player::displayInventory() const {
-    std::cout << "\n--- Player Inventory ---\n";
-
-    if (inventory.empty()) {
-        std::cout << "Inventory is empty.\n";
-        return;
-    }
-
-    for (const std::string& item : inventory) {
-        std::cout << "- " << item << '\n';
-    }
+bool Player::hasItem(const std::string& itemName) const {
+    return std::find(inventory_.begin(), inventory_.end(), itemName) != inventory_.end();
 }
-
-bool Player::hasItem(const std::string& item) const {
-    return std::find(inventory.begin(), inventory.end(), item)
-           != inventory.end();
+bool Player::removeItem(const std::string& itemName) {
+    auto it = std::find(inventory_.begin(), inventory_.end(), itemName);
+    if (it == inventory_.end()) return false;
+    inventory_.erase(it);
+    return true;
 }
-
-int Player::countItems(const std::string& item) const {
-    return static_cast<int>(
-        std::count(inventory.begin(), inventory.end(), item)
-    );
+void Player::reset() {
+    setHealth(100);
+    score_ = 0;
+    inventory_.clear();
 }
