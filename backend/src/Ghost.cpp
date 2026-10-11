@@ -1,48 +1,26 @@
 
+
 #include "Ghost.h"
 
-Ghost::Ghost(const std::string& name, int damage)
-    : name(name), damage(damage) {}
-
-Ghost::~Ghost() = default;
-
-std::string Ghost::getName() const {
-    return name;
-}
-
-int Ghost::getDamage() const {
-    return damage;
-}
+Ghost::Ghost(const std::string& name, int strength, const std::string& description)
+    : Character(name, 1), strength_(strength), description_(description), defeated_(false) {}
+std::string Ghost::getType() const { return "Ghost"; }
+int Ghost::getStrength() const { return strength_; }
+const std::string& Ghost::getDescription() const { return description_; }
+bool Ghost::isDefeated() const { return defeated_; }
+std::string Ghost::haunt() const { return "A cold presence fills the room."; }
+void Ghost::defeat() { defeated_ = true; }
 
 LibraryGhost::LibraryGhost()
-    : Ghost("Library Ghost", 10) {}
+    : Ghost("The Whisper", 12, "A pale figure flickers between the library shelves.") {}
+std::string LibraryGhost::getType() const { return "Library Ghost"; }
+std::string LibraryGhost::haunt() const { return "The pages flutter as a whisper circles you."; }
 
-std::string LibraryGhost::encounterMessage() const {
-    return "A ghost appears between the dusty books!";
-}
+BasementGhost::BasementGhost()
+    : Ghost("The Warden", 20, "A spectral keeper guards the flooded basement.") {}
+std::string BasementGhost::getType() const { return "Basement Ghost"; }
+std::string BasementGhost::haunt() const { return "The Warden rises from the dark water."; }
 
-std::string LibraryGhost::attackMessage() const {
-    return "The Library Ghost attacks with flying books!";
-}
 
-WardenGhost::WardenGhost()
-    : Ghost("Warden Ghost", 20) {}
 
-std::string WardenGhost::encounterMessage() const {
-    return "The Basement Warden blocks your path!";
-}
 
-std::string WardenGhost::attackMessage() const {
-    return "The Warden Ghost strikes with dark energy!";
-}
-
-GuardianSpirit::GuardianSpirit()
-    : Ghost("Guardian Spirit", 15) {}
-
-std::string GuardianSpirit::encounterMessage() const {
-    return "The Guardian Spirit protects the final chamber!";
-}
-
-std::string GuardianSpirit::attackMessage() const {
-    return "The Guardian Spirit releases a magical blast!";
-}
