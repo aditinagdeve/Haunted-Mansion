@@ -1,411 +1,228 @@
-#include "../include/Game.h"
-
-#include <iostream>
-#include <fstream>
+#include "Game.h"
+#include "Ghost.h"
+#include "Item.h"
+#include "puzzle.h"
 #include <algorithm>
 #include <cctype>
+#include <exception>
 
-using namespace std;
+using nlohmann::json;
 
-Game::Game() {
-    setupRooms();
-    restartGame();
+namespace {
+std::string lowerTrim(std::string value) {
+    auto notSpace = [](unsigned char c) { return !std::isspace(c); };
+    value.erase(value.begin(), std::find_if(value.begin(), value.end(), notSpace));
+    value.erase(std::find_if(value.rbegin(), value.rend(), notSpace).base(), value.end());
+    std::transform(value.begin(), value.end(), value.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return value;
+}
 }
 
-void Game::setupRooms() {
-    rooms.clear();
-
-    rooms.emplace_back(
-        0, "Entrance Hall",
-        "You enter a dark mansion. Dust covers the floor.",
-        vector<int>{1}
-    );
-
-    rooms.emplace_back(
-        1, "Grand Corridor",
-        "Old portraits hang on the walls.",
-        vector<int>{0, 2, 3}
-    );
-
-    rooms.emplace_back(
-        2, "Library",
-        "Ancient books hide a mysterious riddle.",
-        vector<int>{1, 4}, "Old Note",
-        false, true,
-        "What has keys but cannot open locks?",
-        "piano"
-    );
-
-    rooms.emplace_back(
-        3, "Haunted Kitchen",
-        "A ghost blocks your path!",
-        vector<int>{1, 4}, "Health Potion",
-        true
-    );
-
-    rooms.emplace_back(
-        4, "Secret Study",
-        "You discover a dusty desk and a locked cabinet.",
-        vector<int>{2, 3, 5}, "Golden Key"
-    );
-
-    rooms.emplace_back(
-        5, "Treasure Chamber",
-        "You have reached the final chamber.",
-        vector<int>{4}, "",
-        false, true,
-        "Solve this: 2 + 2 = ?",
-        "4"
-    );
+Game::Game()
+    : player_("Explorer"), currentRoomId_("foyer"),
+      message_("You wake in Ravenwood Manor. Find a way out."),
+      puzzleSolved_(false), basementGhostDefeated_(false), won_(false), lost_(false) {
+    buildWorld();
 }
 
-void Game::restartGame() {
-    currentRoom = 0;
-    health = 100;
-    hasKey = false;
-    gameOver = false;
-    won = false;
+void Game::buildWorld() {
+    rooms_.clear();
+    auto foyer = std::make_unique<Room>("foyer", "Grand Foyer",
+        "Dust hangs beneath a cracked chandelier. Two dark passages lead deeper into the manor.");
+    auto library = std::make_unique<Room>("library", "Forgotten Library",
+        "Towering shelves lean over a desk. A riddle is scratched into the wood.");
+    auto basement = std::make_unique<Room>("basement", "Flooded Basement",
+        "Cold water covers the stone floor. Something watches from the darkness.");
+    auto secret = std::make_unique<Room>("secret", "Secret Chamber",
+        "A sealed chamber glows with blue light. The manor's final secret lies here.");
 
-    for (size_t i = 0; i < rooms.size(); i++) {
-        rooms[i].setVisited(false);
-    }
+    foyer->addExit("library");
+    foyer->addExit("basement");
+    library->addExit("foyer");
+    library->addExit("secret");
+    basement->addExit("foyer");
+    basement->addExit("secret");
+    secret->addExit("library");
+    secret->addExit("basement");
 
-    // Reset items, ghosts, and puzzles by rebuilding the rooms.
-    setupRooms();
+    library->setItem(Item("silver-key", "Silver Key",
+        "A cold key engraved with a raven.", "key"));
+    library->setGhost(std::make_unique<LibraryGhost>());
+    library->setPuzzle(std::make_unique<Puzzle>(
+        "I have pages but I am not a tree. I hold stories but cannot speak. What am I?",
+        "book", "Hint: you can find many of them on these shelves."));
+    basement->setItem(Item("health-potion", "Healing Potion",
+        "A small vial that restores health.", "potion"));
+    basement->setGhost(std::make_unique<BasementGhost>());
+    secret->setItem(Item("raven-emblem", "Raven Emblem",
+        "The manor's final seal.", "quest"));
 
-    cout << "\n====================================\n";
-    cout << "  THE HAUNTED MANSION: RAVENWOOD\n";
-    cout << "====================================\n";
-    cout << "Find the Golden Key and escape alive!\n";
+    rooms_["foyer"] = std::move(foyer);
+    rooms_["library"] = std::move(library);
+    rooms_["basement"] = std::move(basement);
+    rooms_["secret"] = std::move(secret);
 }
 
-void Game::showCurrentRoom() {
-    Room &room = rooms[currentRoom];
+Room* Game::currentRoom() { return rooms_.at(currentRoomId_).get(); }
+const Room* Game::currentRoom() const { return rooms_.at(currentRoomId_).get(); }
+void Game::setMessage(const std::string& message) { message_ = message; }
 
-    room.setVisited(true);
-
-    cout << "\n------------------------------------\n";
-    cout << "Room: " << room.getName() << "\n";
-    cout << room.getDescription() << "\n";
-    cout << "Health: " << health << "\n";
-
-    if (hasKey) {
-        cout << "Inventory: Golden Key\n";
-    } else {
-        cout << "Inventory: Empty\n";
+void Game::updateEndState() {
+    if (!player_.isAlive()) {
+        lost_ = true;
+        won_ = false;
+        message_ = "Your strength fades. Ravenwood keeps its secrets. Restart to try again.";
     }
-
-    if (room.hasGhost()) {
-        cout << "WARNING: A ghost is here!\n";
-    }
-
-    if (room.hasPuzzle()) {
-        cout << "A puzzle needs to be solved.\n";
-    }
-
-    if (!room.getItem().empty()) {
-        cout << "Item found: " << room.getItem() << "\n";
-    }
-
-    cout << "\nConnected rooms:\n";
-
-    vector<int> exits = room.getConnections();
-
-    for (size_t i = 0; i < exits.size(); i++) {
-        cout << exits[i] << " - "
-             << rooms[exits[i]].getName() << "\n";
+    if (player_.hasItem("Raven Emblem") && currentRoomId_ == "foyer" && player_.isAlive()) {
+        won_ = true;
+        lost_ = false;
+        message_ = "You recovered the Raven Emblem and escaped Ravenwood Manor!";
     }
 }
 
-void Game::movePlayer() {
-    Room &room = rooms[currentRoom];
-    vector<int> exits = room.getConnections();
-
-    cout << "\nEnter destination room number: ";
-
-    int destination;
-    cin >> destination;
-
-    if (cin.fail()) {
-        cin.clear();
-        cin.ignore(10000, '\n');
-        cout << "Invalid input. Enter a room number.\n";
-        return;
+json Game::getState() const {
+    const Room* room = currentRoom();
+    json exits = json::array();
+    for (const auto& exitId : room->getExits()) {
+        const auto found = rooms_.find(exitId);
+        if (found != rooms_.end())
+            exits.push_back({{"id", exitId}, {"name", found->second->getName()}});
     }
 
-    if (find(exits.begin(), exits.end(), destination) == exits.end()) {
-        cout << "You cannot move to that room from here.\n";
-        return;
+    json inventory = json::array();
+    for (const auto& item : player_.getInventory()) inventory.push_back(item);
+
+    json item = nullptr;
+    if (room->hasItem()) {
+        const Item* found = room->getItem();
+        item = {{"id", found->getId()}, {"name", found->getName()},
+                {"description", found->getDescription()}, {"kind", found->getKind()}};
     }
 
-    if (destination == 5 && !hasKey) {
-        cout << "The Treasure Chamber is locked!\n";
-        cout << "Find the Golden Key first.\n";
-        return;
+    json ghost = nullptr;
+    const Ghost* roomGhost = room->getGhost();
+    if (roomGhost && !roomGhost->isDefeated()) {
+        ghost = {{"name", roomGhost->getName()}, {"description", roomGhost->getDescription()},
+                 {"strength", roomGhost->getStrength()}, {"type", roomGhost->getType()},
+                 {"haunt", roomGhost->haunt()}};
     }
 
-    currentRoom = destination;
+    json puzzle = nullptr;
+    const Puzzle* roomPuzzle = room->getPuzzle();
+    if (roomPuzzle && !roomPuzzle->isSolved())
+        puzzle = {{"question", roomPuzzle->getQuestion()}, {"hint", roomPuzzle->getHint()}};
 
-    cout << "You moved to "
-         << rooms[currentRoom].getName() << ".\n";
-
-    checkWin();
+    return {
+        {"player", {{"name", player_.getName()}, {"health", player_.getHealth()},
+                    {"score", player_.getScore()}, {"inventory", inventory}}},
+        {"room", {{"id", room->getId()}, {"name", room->getName()},
+                  {"description", room->getDescription()}, {"exits", exits},
+                  {"item", item}, {"ghost", ghost}, {"puzzle", puzzle}}},
+        {"message", message_},
+        {"status", won_ ? "won" : (lost_ ? "lost" : "playing")},
+        {"flags", {{"puzzleSolved", puzzleSolved_},
+                   {"basementGhostDefeated", basementGhostDefeated_}}}
+    };
 }
 
-void Game::exploreRoom() {
-    Room &room = rooms[currentRoom];
-
-    // Handle a ghost encounter.
-    if (room.hasGhost()) {
-        cout << "\nThe ghost attacks you!\n";
-        cout << "1. Fight the ghost\n";
-        cout << "2. Run away\n";
-        cout << "Choose: ";
-
-        int choice;
-        cin >> choice;
-
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Invalid choice.\n";
-            return;
-        }
-
-        if (choice == 1) {
-            health -= 25;
-            room.defeatGhost();
-
-            cout << "You defeated the ghost, but lost 25 health.\n";
-        } else if (choice == 2) {
-            cout << "You escaped the encounter. Try another room.\n";
-            return;
-        } else {
-            cout << "Invalid choice.\n";
-            return;
-        }
-
-        if (health <= 0) {
-            health = 0;
-            gameOver = true;
-            cout << "\nYou ran out of health. Game over!\n";
-            return;
-        }
+json Game::performAction(const json& request) {
+    if (!request.is_object() || !request.contains("action") || !request["action"].is_string()) {
+        setMessage("Invalid action request.");
+        return getState();
     }
 
-    // Handle a puzzle.
-    if (room.hasPuzzle()) {
-        cout << "\nPUZZLE: "
-             << room.getPuzzleQuestion() << "\n";
-        cout << "Your answer: ";
-
-        string answer;
-        cin >> ws;
-        getline(cin, answer);
-
-        transform(answer.begin(), answer.end(),
-                  answer.begin(),
-                  [](unsigned char c) {
-                      return static_cast<char>(tolower(c));
-                  });
-
-        string correctAnswer = room.getPuzzleAnswer();
-
-        transform(correctAnswer.begin(), correctAnswer.end(),
-                  correctAnswer.begin(),
-                  [](unsigned char c) {
-                      return static_cast<char>(tolower(c));
-                  });
-
-        if (answer == correctAnswer) {
-            room.solvePuzzle();
-            cout << "Correct! The puzzle is solved.\n";
-        } else {
-            health -= 10;
-            cout << "Wrong answer! You lost 10 health.\n";
-
-            if (health <= 0) {
-                health = 0;
-                gameOver = true;
-                cout << "You ran out of health. Game over!\n";
-                return;
-            }
-        }
+    const std::string action = request["action"].get<std::string>();
+    if ((won_ || lost_) && action != "restart") {
+        setMessage("The game has ended. Choose Restart to play again.");
+        return getState();
     }
 
-    // Collect an item.
-    if (!room.getItem().empty()) {
-        string itemName = room.getItem();
-
-        cout << "\nDo you want to collect "
-             << itemName << "? (y/n): ";
-
-        char choice;
-        cin >> choice;
-
-        if (choice == 'y' || choice == 'Y') {
-            if (itemName == "Golden Key") {
-                hasKey = true;
-                cout << "You collected the Golden Key!\n";
-            } else if (itemName == "Health Potion") {
-                health += 25;
-
-                if (health > 100) {
-                    health = 100;
+    try {
+        if (action == "move") {
+            if (!request.contains("target") || !request["target"].is_string()) {
+                setMessage("Choose a valid destination.");
+            } else {
+                const std::string target = request["target"].get<std::string>();
+                const auto& exits = currentRoom()->getExits();
+                if (std::find(exits.begin(), exits.end(), target) == exits.end()) {
+                    setMessage("That passage is not connected to this room.");
+                } else if (target == "secret" &&
+                           (!player_.hasItem("Silver Key") || !puzzleSolved_ || !basementGhostDefeated_)) {
+                    setMessage("The Secret Chamber is sealed. Find the Silver Key, solve the library riddle, and defeat the basement ghost.");
+                } else {
+                    currentRoomId_ = target;
+                    setMessage("You enter " + currentRoom()->getName() + ".");
+                    updateEndState();
                 }
-
-                cout << "You used the Health Potion. Health: "
-                     << health << "\n";
-            } else {
-                cout << "You collected " << itemName << ".\n";
             }
-
-            room.removeItem();
-        }
-    }
-
-    checkWin();
-}
-
-void Game::checkWin() {
-    if (currentRoom == 5 &&
-        hasKey &&
-        !rooms[currentRoom].hasPuzzle()) {
-
-        won = true;
-        gameOver = true;
-
-        cout << "\n====================================\n";
-        cout << "CONGRATULATIONS!\n";
-        cout << "You solved the mystery of Ravenwood!\n";
-        cout << "YOU WIN!\n";
-        cout << "====================================\n";
-    }
-}
-
-void Game::saveGame() {
-    ofstream file("savegame.txt");
-
-    if (!file) {
-        cout << "Unable to save the game.\n";
-        return;
-    }
-
-    file << currentRoom << "\n";
-    file << health << "\n";
-    file << hasKey << "\n";
-
-    file.close();
-
-    cout << "Game progress saved to savegame.txt.\n";
-}
-
-void Game::loadGame() {
-    ifstream file("savegame.txt");
-
-    if (!file) {
-        cout << "No saved game found.\n";
-        return;
-    }
-
-    int savedRoom;
-    int savedHealth;
-    bool savedKey;
-
-    if (!(file >> savedRoom >> savedHealth >> savedKey)) {
-        cout << "Save file is invalid.\n";
-        return;
-    }
-
-    if (savedRoom < 0 ||
-        savedRoom >= static_cast<int>(rooms.size()) ||
-        savedHealth < 1 ||
-        savedHealth > 100) {
-
-        cout << "Saved data is invalid.\n";
-        return;
-    }
-
-    currentRoom = savedRoom;
-    health = savedHealth;
-    hasKey = savedKey;
-    gameOver = false;
-    won = false;
-
-    rooms[currentRoom].setVisited(true);
-
-    file.close();
-
-    cout << "Game progress loaded successfully.\n";
-}
-
-void Game::run() {
-    int choice;
-
-    while (true) {
-        cout << "\n\n========== MAIN MENU ==========\n";
-        cout << "1. New Game\n";
-        cout << "2. Continue Saved Game\n";
-        cout << "3. Exit\n";
-        cout << "Choose: ";
-
-        cin >> choice;
-
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Please enter a valid number.\n";
-            continue;
-        }
-
-        if (choice == 1) {
-            restartGame();
-        } else if (choice == 2) {
-            loadGame();
-        } else if (choice == 3) {
-            cout << "Leaving the mansion. Goodbye!\n";
-            return;
+        } else if (action == "collect") {
+            Room* room = currentRoom();
+            if (!room->hasItem()) {
+                setMessage("There is nothing here to collect.");
+            } else {
+                const Item* item = room->getItem();
+                const std::string name = item->getName();
+                const std::string kind = item->getKind();
+                if (player_.addItem(name)) {
+                    player_.addScore(kind == "quest" ? 50 : 10);
+                    room->removeItem();
+                    setMessage("Collected: " + name + ".");
+                } else setMessage("You already have that item.");
+            }
+        } else if (action == "fight") {
+            Ghost* ghost = currentRoom()->getGhost();
+            if (!ghost || ghost->isDefeated()) {
+                setMessage("There is no ghost to confront here.");
+            } else if (player_.hasItem("Silver Key")) {
+                ghost->defeat();
+                player_.addScore(25);
+                if (currentRoomId_ == "basement") basementGhostDefeated_ = true;
+                setMessage(ghost->getName() + " recoils from the Silver Key and dissolves into mist!");
+            } else {
+                player_.takeDamage(ghost->getStrength());
+                setMessage(ghost->haunt() + " You lose " + std::to_string(ghost->getStrength()) +
+                           " health. Find the Silver Key before confronting it again.");
+            }
+        } else if (action == "solve") {
+            if (!request.contains("answer") || !request["answer"].is_string()) {
+                setMessage("Enter an answer to the riddle.");
+            } else {
+                Puzzle* puzzle = currentRoom()->getPuzzle();
+                if (!puzzle) setMessage("There is no puzzle in this room.");
+                else if (puzzle->checkAnswer(request["answer"].get<std::string>())) {
+                    puzzleSolved_ = true;
+                    player_.addScore(30);
+                    setMessage("Correct! The shelves shift, revealing a hidden passage.");
+                } else setMessage("That answer is not correct. Try again or ask for a hint.");
+            }
+        } else if (action == "hint") {
+            Puzzle* puzzle = currentRoom()->getPuzzle();
+            setMessage(puzzle && !puzzle->isSolved()
+                ? puzzle->getHint() : "There is no unsolved puzzle here.");
+        } else if (action == "use_potion") {
+            if (player_.removeItem("Healing Potion")) {
+                player_.heal(35);
+                setMessage("The potion restores your strength.");
+            } else setMessage("You do not have a Healing Potion.");
+        } else if (action == "restart") {
+            player_.reset();
+            currentRoomId_ = "foyer";
+            puzzleSolved_ = false;
+            basementGhostDefeated_ = false;
+            won_ = false;
+            lost_ = false;
+            buildWorld();
+            setMessage("A new attempt begins. Explore carefully.");
         } else {
-            cout << "Invalid choice.\n";
-            continue;
+            setMessage("Unknown action.");
         }
-
-        while (!gameOver) {
-            showCurrentRoom();
-
-            cout << "\n========== GAME MENU ==========\n";
-            cout << "1. Move to another room\n";
-            cout << "2. Explore room\n";
-            cout << "3. Save game\n";
-            cout << "4. Return to main menu\n";
-            cout << "Choose: ";
-
-            cin >> choice;
-
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Please enter a valid number.\n";
-                continue;
-            }
-
-            if (choice == 1) {
-                movePlayer();
-            } else if (choice == 2) {
-                exploreRoom();
-            } else if (choice == 3) {
-                saveGame();
-            } else if (choice == 4) {
-                break;
-            } else {
-                cout << "Invalid choice.\n";
-            }
-        }
-
-        if (won) {
-            cout << "Thanks for playing!\n";
-        } else if (health <= 0) {
-            cout << "Try again to solve the mansion's mystery.\n";
-        }
+    } catch (const std::exception&) {
+        setMessage("The game could not process that action.");
     }
+
+    updateEndState();
+    return getState();
 }
+
+    
