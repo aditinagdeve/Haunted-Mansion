@@ -1,72 +1,24 @@
-#include "../include/Room.h"
+#include "Room.h"
+#include <algorithm>
 
-Room::Room(int roomId, string roomName, string roomDescription,
-           vector<int> roomConnections, string roomItem,
-           bool ghost, bool puzzle, string question, string answer) {
-    id = roomId;
-    name = roomName;
-    description = roomDescription;
-    connections = roomConnections;
-    item = roomItem;
-    ghostActive = ghost;
-    puzzleActive = puzzle;
-    visited = false;
-    puzzleQuestion = question;
-    puzzleAnswer = answer;
-}
+Room::Room(const std::string& id, const std::string& name,
+           const std::string& description)
+    : id_(id), name_(name), description_(description) {}
 
-int Room::getId() const {
-    return id;
-}
+const std::string& Room::getId() const { return id_; }
+const std::string& Room::getName() const { return name_; }
+const std::string& Room::getDescription() const { return description_; }
+const std::vector<std::string>& Room::getExits() const { return exits_; }
 
-string Room::getName() const {
-    return name;
+void Room::addExit(const std::string& roomId) {
+    if (std::find(exits_.begin(), exits_.end(), roomId) == exits_.end())
+        exits_.push_back(roomId);
 }
-
-string Room::getDescription() const {
-    return description;
-}
-
-vector<int> Room::getConnections() const {
-    return connections;
-}
-
-string Room::getItem() const {
-    return item;
-}
-
-bool Room::hasGhost() const {
-    return ghostActive;
-}
-
-bool Room::hasPuzzle() const {
-    return puzzleActive;
-}
-
-bool Room::isVisited() const {
-    return visited;
-}
-
-string Room::getPuzzleQuestion() const {
-    return puzzleQuestion;
-}
-
-string Room::getPuzzleAnswer() const {
-    return puzzleAnswer;
-}
-
-void Room::setVisited(bool value) {
-    visited = value;
-}
-
-void Room::removeItem() {
-    item = "";
-}
-
-void Room::defeatGhost() {
-    ghostActive = false;
-}
-
-void Room::solvePuzzle() {
-    puzzleActive = false;
-}
+void Room::setItem(const Item& item) { item_ = std::make_unique<Item>(item); }
+const Item* Room::getItem() const { return item_.get(); }
+bool Room::hasItem() const { return static_cast<bool>(item_); }
+void Room::removeItem() { item_.reset(); }
+void Room::setGhost(std::unique_ptr<Ghost> ghost) { ghost_ = std::move(ghost); }
+Ghost* Room::getGhost() const { return ghost_.get(); }
+void Room::setPuzzle(std::unique_ptr<Puzzle> puzzle) { puzzle_ = std::move(puzzle); }
+Puzzle* Room::getPuzzle() const { return puzzle_.get(); }
