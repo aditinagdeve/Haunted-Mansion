@@ -1,51 +1,38 @@
-
-#ifndef ROOM_H
-#define ROOM_H
-
+#pragma once
+#include "Ghost.h"
+#include "Item.h"
+#include "puzzle.h"
+#include <memory>
 #include <string>
 #include <vector>
 
 class Room {
-private:
-    int id;
-    std::string name;
-    std::string description;
-    std::vector<int> connections;
-    std::string item;
-    bool ghostActive;
-    bool puzzleActive;
-    bool visited;
-    std::string puzzleQuestion;
-    std::string puzzleAnswer;
-
 public:
-    Room(int roomId, std::string roomName,
-         std::string roomDescription,
-         std::vector<int> roomConnections,
-         std::string roomItem = "",
-         bool ghost = false,
-         bool puzzle = false,
-         std::string question = "",
-         std::string answer = "");
+    Room(const std::string& id, const std::string& name,
+         const std::string& description);
 
-    int getId() const;
-    std::string getName() const;
-    std::string getDescription() const;
-    std::vector<int> getConnections() const;
-    std::string getItem() const;
+    const std::string& getId() const;
+    const std::string& getName() const;
+    const std::string& getDescription() const;
+    const std::vector<std::string>& getExits() const;
 
-    bool hasGhost() const;
-    bool hasPuzzle() const;
-    bool isVisited() const;
-
-    std::string getPuzzleQuestion() const;
-    std::string getPuzzleAnswer() const;
-
-    void setVisited(bool value);
+    void addExit(const std::string& roomId);
+    void setItem(const Item& item);
+    const Item* getItem() const;
+    bool hasItem() const;
     void removeItem();
-    void defeatGhost();
-    void solvePuzzle();
+
+    void setGhost(std::unique_ptr<Ghost> ghost);
+    Ghost* getGhost() const;
+    void setPuzzle(std::unique_ptr<Puzzle> puzzle);
+    Puzzle* getPuzzle() const;
+
+private:
+    std::string id_;
+    std::string name_;
+    std::string description_;
+    std::vector<std::string> exits_;
+    std::unique_ptr<Item> item_;
+    std::unique_ptr<Ghost> ghost_;
+    std::unique_ptr<Puzzle> puzzle_;
 };
-
-#endif
-
