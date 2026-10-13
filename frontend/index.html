@@ -1,73 +1,193 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0d12">
-  <title>Secrets of Ravenwood</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b12">
+<title>Secrets of Ravenwood — The Haunted Mansion</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+:root{--gold:#d6b878;--gold2:#f2dca2;--cyan:#83d7df;--ink:#06090f;--panel:rgba(7,13,21,.86);--muted:#a9b2bd}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#05080e;color:#eee9df;font-family:'Cormorant Garamond',serif}body{overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+#app{min-height:100vh;position:relative;isolation:isolate;background:radial-gradient(ellipse at 50% 32%,#18313b 0,#0c1722 30%,#070b12 68%,#030509 100%);overflow:hidden}
+#app:before{content:"";position:absolute;inset:0;z-index:-2;opacity:.72;background:linear-gradient(180deg,rgba(3,8,14,.05),rgba(3,6,12,.8)),radial-gradient(ellipse at 50% 90%,rgba(68,127,140,.17),transparent 50%)}
+#app:after{content:"";position:absolute;inset:-10%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse,transparent 36%,rgba(0,0,0,.72) 100%);animation:vignette 8s ease-in-out infinite alternate}
+@keyframes vignette{to{opacity:.7}}@keyframes drift{from{transform:translateX(-3%) translateY(0)}to{transform:translateX(3%) translateY(-12px)}}@keyframes glow{0%,100%{opacity:.45}50%{opacity:1}}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.mist{position:absolute;inset:30% -10% 0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 20% 60%,rgba(94,161,170,.13),transparent 35%),radial-gradient(ellipse at 70% 50%,rgba(96,150,169,.12),transparent 32%);filter:blur(20px);animation:drift 14s ease-in-out infinite alternate}
+.sky-moon{position:absolute;top:8%;right:17%;width:95px;height:95px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff8dc,#c5d7d5 60%,#718f9a);box-shadow:0 0 35px #b4d7dc55,0 0 100px #9bd4df22;opacity:.72}
+.mansion{position:absolute;z-index:-1;left:50%;top:18%;transform:translateX(-50%);width:min(950px,105vw);height:65vh;min-height:400px;opacity:.86;filter:drop-shadow(0 0 15px #102b34)}
+.mansion svg{width:100%;height:100%;overflow:visible}
+.topbar{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(18px,4vw,58px);border-bottom:1px solid #d6b87828;background:linear-gradient(180deg,#05080dbb,transparent)}
+.brand{font-family:Cinzel,serif;letter-spacing:.18em;color:var(--gold);font-size:12px}.brand span{display:block;color:#d7d9d5;letter-spacing:.3em;font-size:9px;margin-top:5px}
+.top-actions{display:flex;gap:10px}.icon-btn{background:#09121bba;border:1px solid #d6b87855;border-radius:50%;width:39px;height:39px;color:var(--gold);font-size:16px;transition:.2s}.icon-btn:hover{background:#17303a;border-color:var(--cyan);color:white}
+.screen{position:relative;z-index:2;min-height:calc(100vh - 85px);padding:clamp(28px,6vh,70px) 20px 54px;display:flex;align-items:center;justify-content:center;animation:rise .6s ease both}
+.hero{width:min(780px,100%);text-align:center;margin-top:clamp(0px,5vh,55px)}
+.eyebrow{font-family:Cinzel,serif;letter-spacing:.38em;color:var(--cyan);font-size:10px;text-transform:uppercase;margin-bottom:22px}
+h1{font-family:Cinzel,serif;font-weight:500;font-size:clamp(36px,6vw,72px);letter-spacing:.075em;line-height:1.12;margin:0;color:#f4ead2;text-shadow:0 0 30px #d6b87824}
+h1 em{display:block;font-style:normal;color:var(--gold);font-size:.58em;letter-spacing:.31em;margin-top:16px}
+.rule{width:145px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:27px auto}
+.tagline{font-size:clamp(17px,2vw,22px);letter-spacing:.06em;color:#c8d0d2;margin:0 auto 30px;max-width:490px}
+.menu{display:flex;flex-direction:column;gap:10px;width:min(290px,100%);margin:0 auto}
+.btn{position:relative;border:1px solid #bda3658c;background:linear-gradient(100deg,#151a1eeb,#101d25e8);padding:13px 22px;text-transform:uppercase;letter-spacing:.18em;font:11px Cinzel,serif;color:var(--gold2);transition:all .25s;overflow:hidden}
+.btn:before{content:"";position:absolute;top:0;bottom:0;left:-100%;width:65%;background:linear-gradient(90deg,transparent,#d6b87818,transparent);transform:skewX(-20deg);transition:.55s}
+.btn:hover{border-color:var(--cyan);color:#fff;box-shadow:0 0 22px #71cbd51c, inset 0 0 18px #71cbd50b;transform:translateY(-1px)}.btn:hover:before{left:140%}
+.btn.primary{background:linear-gradient(100deg,#a7884b,#e1c88d,#8c713e);color:#11130f;border-color:#f2dca2;font-weight:700}.btn.primary:hover{color:#05080b;box-shadow:0 0 28px #d6b8784a}
+.btn.small{padding:10px 14px;font-size:10px}.footnote{font:9px Cinzel,serif;letter-spacing:.2em;color:#87949a;margin-top:32px}
+.content{width:min(1000px,100%);margin:auto}.section-head{text-align:center;margin-bottom:26px}.section-head h2{font:500 clamp(27px,4vw,43px) Cinzel,serif;letter-spacing:.09em;color:var(--gold2);margin:0}.section-head p{font-size:18px;color:#b8c3c7;margin:12px 0}
+.panel{background:linear-gradient(145deg,rgba(13,24,32,.92),rgba(5,10,17,.94));border:1px solid #d6b87842;box-shadow:0 18px 55px #0006,inset 0 0 30px #75cbd008;padding:clamp(18px,3vw,30px)}
+.level-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.level{min-height:155px;text-align:left;padding:18px 15px;background:linear-gradient(150deg,#162832d9,#080d14);border:1px solid #8bb6bd42;transition:.2s;position:relative}.level:hover:not(:disabled){border-color:var(--gold);transform:translateY(-3px)}.level:disabled{opacity:.38;cursor:not-allowed;filter:grayscale(.7)}
+.level .num{font:10px Cinzel,serif;letter-spacing:.2em;color:var(--cyan)}.level strong{display:block;font:15px Cinzel,serif;color:#f0dfb7;margin:16px 0 7px}.level small{color:#a8b5bc;font-size:15px}.lock{position:absolute;right:14px;top:13px;color:#aeb6b6}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.hud-label{font:10px Cinzel,serif;letter-spacing:.14em;color:var(--cyan)}.hud-actions{display:flex;gap:7px;flex-wrap:wrap}
+.game-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.8fr);gap:14px}
+.scene-art{position:relative;min-height:340px;overflow:hidden;border:1px solid #83d7df3d;background:radial-gradient(ellipse at 50% 35%,#244653,#0d1c28 55%,#060a10);display:flex;align-items:center;justify-content:center}
+.scene-art:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#050a1033,#02060bcc),radial-gradient(ellipse at 50% 80%,#75cbd51e,transparent 50%)}
+.scene-icon{font-size:100px;filter:drop-shadow(0 0 25px #8fdde055);opacity:.9;z-index:1}
+.scene-caption{position:absolute;z-index:2;bottom:18px;left:20px;right:20px;text-align:center;color:#c7d4d6;font-style:italic;font-size:18px}
+.hotspots{position:absolute;z-index:3;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:20px}
+.hotspot{background:#071018d9;border:1px solid #83d7df9c;color:#d8e9e8;padding:9px 12px;font:10px Cinzel,serif;letter-spacing:.08em;box-shadow:0 0 18px #83d7df12}.hotspot:hover{background:#1d3940;border-color:var(--gold);color:var(--gold2)}
+.side-panel{display:flex;flex-direction:column;gap:12px}.mini-title{font:11px Cinzel,serif;letter-spacing:.15em;color:var(--gold);margin-bottom:10px}.side-panel p{font-size:17px;line-height:1.45;color:#c0c9ca;margin:0}.item-list{display:flex;flex-wrap:wrap;gap:7px}.item{font-size:14px;border:1px solid #8bb6bd48;background:#0b1820;padding:6px 9px;color:#cde0df}
+.dialogue{font-size:19px;line-height:1.5;color:#e4ddd0;margin:0 0 15px}.choices{display:flex;flex-direction:column;gap:8px}
+.toast{position:fixed;z-index:20;bottom:22px;left:50%;transform:translateX(-50%);background:#0b171f;border:1px solid #d6b87888;padding:12px 18px;color:#f0dfb7;box-shadow:0 10px 35px #0009;font-size:17px;max-width:90vw;text-align:center;animation:rise .25s ease}
+.modal-backdrop{position:fixed;z-index:30;inset:0;background:#020509c9;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(7px)}
+.modal{width:min(560px,100%);max-height:85vh;overflow:auto;position:relative}.modal h3{font:500 25px Cinzel,serif;color:var(--gold2);margin:0 0 16px}.modal p,.modal label{font-size:18px;line-height:1.5;color:#c4cecf}.modal-close{position:absolute;right:15px;top:12px;border:0;background:none;color:var(--gold);font-size:23px}
+.clue{border-left:2px solid var(--cyan);padding:10px 14px;margin:10px 0;background:#83d7df0b}.clue strong{display:block;font:11px Cinzel,serif;color:var(--gold);margin-bottom:5px}.clue span{font-size:17px;color:#cbd4d3}
+input[type=range]{width:100%;accent-color:var(--gold)}.setting-row{margin:20px 0}.setting-row label{display:block;margin-bottom:8px}
+.ending{text-align:center;max-width:650px}.ending .sigil{font-size:70px;color:var(--gold);text-shadow:0 0 30px #d6b87855}
+@media(max-width:760px){.level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.game-layout{grid-template-columns:1fr}.scene-art{min-height:290px}.mansion{top:23%;height:52vh}.sky-moon{right:10%;width:65px;height:65px}.topbar{padding:16px}.screen{padding-top:35px}.hero{margin-top:0}.brand{font-size:10px}}
+@media(max-width:400px){.level-grid{grid-template-columns:1fr 1fr}.level{min-height:140px;padding:13px}.scene-icon{font-size:76px}.btn{padding:12px 14px}}
+</style>
 </head>
 <body>
-  <div class="grain" aria-hidden="true"></div>
+<div id="app">
+  <div class="mist"></div><div class="sky-moon"></div>
+  <div class="mansion" aria-hidden="true">
+    <svg viewBox="0 0 1000 650" preserveAspectRatio="xMidYMax meet">
+      <defs><linearGradient id="stone" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#20343c"/><stop offset="1" stop-color="#080f18"/></linearGradient><linearGradient id="window" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#b3dce0"/><stop offset="1" stop-color="#476f7c"/></linearGradient></defs>
+      <g stroke="#49636b" stroke-width="2" fill="url(#stone)">
+        <path d="M115 625V300L220 235 325 300V625Z"/><path d="M675 625V300L780 235 885 300V625Z"/>
+        <path d="M280 625V205L500 78 720 205V625Z"/><path d="M390 625V260H610V625Z"/>
+        <path d="M175 300V175L220 100 265 175V300Z"/><path d="M735 300V175L780 100 825 175V300Z"/>
+        <path d="M440 205V105L500 20 560 105V205Z"/>
+      </g>
+      <g fill="#071018" stroke="#536a70" stroke-width="3">
+        <path d="M150 370Q175 325 200 370V430H150Z"/><path d="M240 370Q265 325 290 370V430H240Z"/>
+        <path d="M710 370Q735 325 760 370V430H710Z"/><path d="M800 370Q825 325 850 370V430H800Z"/>
+        <path d="M350 265Q375 220 400 265V335H350Z"/><path d="M600 265Q625 220 650 265V335H600Z"/>
+      </g>
+      <g fill="url(#window)" opacity=".75">
+        <path d="M165 374Q175 347 185 374V417H165Z"/><path d="M255 374Q265 347 275 374V417H255Z"/>
+        <path d="M725 374Q735 347 745 374V417H725Z"/><path d="M815 374Q825 347 835 374V417H815Z"/>
+        <path d="M365 269Q375 242 385 269V322H365Z"/><path d="M615 269Q625 242 635 269V322H615Z"/>
+        <path d="M465 120Q500 70 535 120V178H465Z"/>
+      </g>
+      <g stroke="#263e47" stroke-width="4" fill="#090e15"><path d="M430 625V440Q500 350 570 440V625Z"/><path d="M455 625V458Q500 410 545 458V625Z"/></g>
+      <path d="M500 625V500" stroke="#d2b878" stroke-width="2" opacity=".55"/><path d="M500 625L330 650M500 625L670 650" stroke="#719ca2" stroke-width="2" opacity=".3"/>
+      <g fill="#101b20" stroke="#40565e" stroke-width="2"><path d="M80 625V455L105 425 130 455V625Z"/><path d="M870 625V455L895 425 920 455V625Z"/></g>
+      <g fill="#d6b878" opacity=".5"><circle cx="220" cy="465" r="3"/><circle cx="780" cy="465" r="3"/><circle cx="500" cy="215" r="3"/></g>
+    </svg>
+  </div>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Secrets of Ravenwood home">
-      <span class="brand-mark">R</span>
-      <span><strong>RAVENWOOD</strong><small>THE MANOR REMEMBERS</small></span>
-    </a>
-    <div class="status-pill"><span id="status-dot" class="status-dot"></span><span id="connection">Connecting to game engine…</span></div>
+    <div class="brand">RAVENWOOD <span>AN INTERACTIVE MYSTERY</span></div>
+    <div class="top-actions">
+      <button class="icon-btn" title="Journal" aria-label="Open journal" onclick="openModal('journal')">▤</button>
+      <button class="icon-btn" title="Settings" aria-label="Settings" onclick="openModal('settings')">⚙</button>
+      <button class="icon-btn" id="audioBtn" title="Toggle ambience" aria-label="Toggle ambience" onclick="toggleAudio()">♫</button>
+    </div>
   </header>
-
-  <main class="layout">
-    <section class="hero">
-      <p class="eyebrow">AN INTERACTIVE HORROR ADVENTURE</p>
-      <h1>Secrets of <em>Ravenwood</em></h1>
-      <p class="hero-copy">The doors have locked behind you. The house is awake. Find the relics, solve the riddle, and escape before the manor claims you.</p>
-    </section>
-
-    <section class="stats" aria-label="Player stats">
-      <article class="stat-card"><span class="stat-label">EXPLORER</span><strong id="player-name">Explorer</strong><small>LAST ONE INSIDE</small></article>
-      <article class="stat-card"><span class="stat-label">VITALITY</span><div class="health-line"><strong id="health-value">100</strong><span>/ 100</span></div><div class="health-track"><div id="health-bar" class="health-fill"></div></div></article>
-      <article class="stat-card"><span class="stat-label">DISCOVERY SCORE</span><strong id="score-value">0</strong><small>POINTS EARNED</small></article>
-    </section>
-
-    <section class="game-grid">
-      <article class="panel room-panel">
-        <div class="panel-heading"><div><p class="eyebrow">CURRENT LOCATION</p><h2 id="room-name">Grand Foyer</h2></div><span class="room-index" id="room-index">01 / 04</span></div>
-        <div class="room-art" id="room-art" role="img" aria-label="Atmospheric haunted mansion illustration">
-          <div class="moon"></div><div class="silhouette"></div><div class="floor"></div>
-          <div class="art-label" id="art-label">THE GRAND FOYER</div>
-        </div>
-        <p class="room-description" id="room-description">The manor waits in silence.</p>
-        <div class="message" aria-live="polite"><span class="message-icon">✦</span><span id="game-message">The house is waiting…</span></div>
-        <div class="section-title">PASSAGES <span>Choose your next move</span></div>
-        <div id="exits" class="exit-list"></div>
-      </article>
-
-      <aside class="side-column">
-        <article class="panel">
-          <div class="section-title">INVENTORY <span id="inventory-count">0 ITEMS</span></div>
-          <div id="inventory" class="inventory"><p class="muted">Your pockets are empty.</p></div>
-          <button id="potion-button" class="button button-secondary" type="button">Use healing potion</button>
-        </article>
-        <article class="panel encounter-panel">
-          <div class="section-title">ROOM DISCOVERY <span>INVESTIGATE</span></div>
-          <div id="discovery-content" class="discovery-content"><p class="muted">Search each room carefully.</p></div>
-          <div id="discovery-actions" class="action-list"></div>
-        </article>
-        <article class="panel">
-          <div class="section-title">YOUR OBJECTIVE <span>ESCAPE PLAN</span></div>
-          <ul class="objectives">
-            <li id="objective-key">Find the Silver Key</li>
-            <li id="objective-puzzle">Solve the library riddle</li>
-            <li id="objective-ghost">Overcome the basement ghost</li>
-            <li id="objective-relic">Claim the Raven Emblem</li>
-            <li id="objective-escape">Return to the foyer</li>
-          </ul>
-        </article>
-      </aside>
-    </section>
-    <footer class="footer"><span>SECRETS OF RAVENWOOD</span><span>AN OOP C++ PROJECT</span><button id="restart-button" class="text-button" type="button">↻ Restart game</button></footer>
-  </main>
-  <script src="script.js"></script>
+  <main id="screen" class="screen"></main>
+</div>
+<script>
+const levels=[
+ {id:0,name:"The Wrought-Iron Gates",sub:"Where the story begins",icon:"⚜",desc:"The gates groan open. A cold mist curls around your feet, and the mansion seems to be waiting for you.",objects:[["Inspect the gate","gate"],["Examine the stone raven","raven"],["Follow the lanterns","lantern"]]},
+ {id:1,name:"The Grand Foyer",sub:"Footsteps in the dust",icon:"♜",desc:"A chandelier sways though the air is still. Portraits watch from the walls. Somewhere above, a floorboard creaks.",objects:[["Inspect the portraits","portrait"],["Look beneath the stairs","stairs"],["Examine the grandfather clock","clock"]]},
+ {id:2,name:"The Whispering Library",sub:"A secret between the pages",icon:"▤",desc:"Dusty shelves rise into darkness. A book lies open on a desk, its ink fresh despite the years.",objects:[["Read the open book","book"],["Inspect the locked cabinet","cabinet"],["Search the writing desk","desk"]]},
+ {id:3,name:"The Candlelit Study",sub:"The owner's last letter",icon:"♧",desc:"A single candle burns beside an unfinished letter. The room smells of rain and old paper.",objects:[["Read the letter","letter"],["Inspect the desk drawer","drawer"],["Examine the fireplace","fireplace"]]},
+ {id:4,name:"The Sealed Conservatory",sub:"Something stirs among the vines",icon:"❋",desc:"Moonlight falls through cracked glass. Pale vines curl around a brass mechanism beneath the dry fountain.",objects:[["Inspect the fountain","fountain"],["Study the strange vines","vines"],["Search the potting bench","bench"]]},
+ {id:5,name:"The Forgotten Chapel",sub:"A promise left unfinished",icon:"✧",desc:"Rows of empty pews face a weathered altar. A faint blue light glimmers beneath a loose floor tile.",objects:[["Inspect the altar","altar"],["Lift the loose tile","tile"],["Read the inscription","inscription"]]},
+ {id:6,name:"The Hidden Passage",sub:"The house remembers",icon:"⌁",desc:"Behind the stone wall, a narrow passage slopes into the earth. Symbols are carved into the damp stone.",objects:[["Study the symbols","symbols"],["Follow the cold draft","draft"],["Inspect the iron door","iron door"]]},
+ {id:7,name:"The Raven Room",sub:"At the heart of the mystery",icon:"☾",desc:"A black raven perches above a mirror framed in tarnished gold. The final secret is almost within reach.",objects:[["Speak to the raven","raven spirit"],["Inspect the mirror","mirror"],["Place your collected clues","clues"]]}
+];
+const clueText={
+ gate:["The Gate's Inscription","“What is taken in silence must be returned in truth.”"],
+ raven:["The Stone Raven","Its beak points toward the eastern wing. One eye is polished smooth."],
+ lantern:["The Lantern Trail","Three lanterns burn with blue flame, leading toward the foyer."],
+ portrait:["The Family Portrait","One face has been scratched away. A tiny brass key is tucked into the frame."],
+ stairs:["A Torn Note","“The library remembers what the family chose to forget.”"],
+ clock:["The Stopped Clock","The hands are frozen at 11:17. Something small is missing from its center."],
+ book:["A Pressed Flower","A dried blue flower marks a page about the Ravenwood heir."],
+ cabinet:["The Cabinet Lock","The lock has three rotating rings: raven, moon, thorn."],
+ desk:["A Cipher","The repeated letters spell out: LOOK BENEATH THE LIGHT."],
+ letter:["The Unfinished Letter","“If the house is ever to be free, the truth must be spoken aloud.”"],
+ drawer:["A Brass Key","The key is warm to the touch and etched with a tiny crescent moon."],
+ fireplace:["Ashes and Symbols","Beneath the soot is a symbol matching the one in the library book."],
+ fountain:["A Hidden Compartment","Inside is a glass vial filled with silver dust."],
+ vines:["The Living Vines","They recoil from the silver dust, revealing a narrow keyhole."],
+ bench:["A Gardener's Journal","“The chapel bell rings only for the one who remembers.”"],
+ altar:["The Chapel Inscription","“Name the forgotten, and the path will open.”"],
+ tile:["A Silver Token","A silver token bears the initials E.R."],
+ inscription:["A Name in Stone","Eleanor Ravenwood. The name appears again and again."],
+ symbols:["The Passage Marks","The symbols form a map of the mansion's hidden rooms."],
+ draft:["A Whisper","“Eleanor did not leave. She was hidden from the truth.”"],
+ "iron door":["The Iron Door","It opens only when the silver token and brass key are together."],
+ "raven spirit":["The Raven's Message","“I guarded the secret, not the sin. Let her name be heard.”"],
+ mirror:["The Mirror's Reflection","A young woman appears behind you, waiting to be remembered."],
+ clues:["The Final Truth","The clues reveal Eleanor was blamed for a secret she tried to expose."]
+};
+let state={screen:"home",level:0,unlocked:1,inventory:[],clues:[],visited:[],completed:false,subtitles:true,fog:70,volume:25,audio:false,ending:false};
+const $=s=>document.querySelector(s);
+function save(){try{localStorage.setItem("ravenwood-save",JSON.stringify(state))}catch(e){}}
+function load(){try{let s=JSON.parse(localStorage.getItem("ravenwood-save"));if(s)state={...state,...s}}catch(e){}}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ const el=$("#screen");
+ if(state.screen==="home")el.innerHTML=homeHTML();
+ else if(state.screen==="map")el.innerHTML=mapHTML();
+ else if(state.screen==="game")el.innerHTML=gameHTML();
+ else if(state.screen==="ending")el.innerHTML=endingHTML();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function homeHTML(){return `<section class="hero"><div class="eyebrow">A gothic mystery · an interactive story</div><h1>SECRETS OF<em>RAVENWOOD</em></h1><div class="rule"></div><p class="tagline">Some houses keep their secrets.<br>Others keep their ghosts.</p><div class="menu"><button class="btn primary" onclick="newGame()">Begin the story</button><button class="btn" onclick="continueGame()">Continue${state.visited.length?` · ${safe(levels[state.level].name)}`:""}</button><button class="btn" onclick="go('map')">Explore the mansion</button><button class="btn" onclick="openModal('journal')">Journal & collected clues</button><button class="btn" onclick="openModal('credits')">About this mystery</button></div><div class="footnote">✦ &nbsp; EVERY CLUE HAS A STORY &nbsp; ✦</div></section>`}
+function mapHTML(){return `<section class="content"><div class="section-head"><div class="eyebrow">The estate · 4 / 12 rooms mapped</div><h2>The Mansion</h2><p>Choose a place to investigate. New rooms open as the mystery unfolds.</p></div><div class="panel"><div class="level-grid">${levels.map((l,i)=>`<button class="level" ${i>state.unlocked?"disabled":""} onclick="enterLevel(${i})"><span class="num">ROOM 0${i+1}</span><span class="lock">${i>state.unlocked?"⌑":"✦"}</span><strong>${l.name}</strong><small>${l.sub}</small></button>`).join("")}</div><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:22px"><button class="btn small" onclick="go('home')">← Main menu</button><span class="hud-label">CLUES FOUND: ${state.clues.length} &nbsp; / &nbsp; ${Object.keys(clueText).length}</span><button class="btn small" onclick="openModal('journal')">Open journal ↗</button></div></div></section>`}
+function gameHTML(){let l=levels[state.level];return `<section class="content"><div class="hud"><span class="hud-label">CHAPTER ${String(state.level+1).padStart(2,"0")} &nbsp; / &nbsp; RAVENWOOD ESTATE</span><div class="hud-actions"><button class="btn small" onclick="go('map')">⌖ Map</button><button class="btn small" onclick="openModal('inventory')">♧ Inventory (${state.inventory.length})</button><button class="btn small" onclick="openModal('journal')">▤ Journal</button></div></div><div class="section-head"><h2>${l.name}</h2><p>${l.sub}</p></div><div class="game-layout"><div class="scene-art"><div class="scene-icon">${l.icon}</div><div class="hotspots">${l.objects.map(o=>`<button class="hotspot" onclick="inspect('${safe(o[1])}')">✧ ${safe(o[0])}</button>`).join("")}</div><div class="scene-caption">${l.desc}</div></div><aside class="side-panel"><div class="panel"><div class="mini-title">CURRENT OBJECTIVE</div><p>${state.level===0?"Find a way into Ravenwood Manor.":state.level===levels.length-1?"Uncover the truth behind Eleanor Ravenwood.":"Search the room for evidence and follow the trail."}</p><div class="rule" style="margin:17px 0;width:100%"></div><div class="mini-title">COLLECTED ITEMS</div><div class="item-list">${state.inventory.length?state.inventory.map(x=>`<span class="item">${safe(x)}</span>`).join(""):'<span style="color:#84949a;font-size:16px">Nothing collected yet</span>'}</div></div><div class="panel"><div class="mini-title">THE STORY SO FAR</div><p>${state.clues.length?`You have uncovered ${state.clues.length} piece${state.clues.length===1?"":"s"} of evidence. Each clue brings Eleanor's story into focus.`:"The mansion is quiet, but not empty. Inspect anything that catches your eye."}</p><button class="btn small" style="width:100%;margin-top:16px" onclick="advance()">Continue exploring →</button></div></aside></div></section>`}
+function endingHTML(){return `<section class="hero ending"><div class="sigil">✧</div><div class="eyebrow">The final chapter</div><h1>THE TRUTH<em>REMEMBERS</em></h1><div class="rule"></div><p class="tagline">Eleanor's name is no longer lost to the dark. The mansion falls silent at last, and the first pale light of dawn reaches the windows.</p><p style="font-size:18px;color:#aebfc0;margin-bottom:28px">You gathered ${state.clues.length} clues and discovered ${state.inventory.length} items.</p><div class="menu"><button class="btn primary" onclick="newGame()">Play again</button><button class="btn" onclick="openModal('journal')">Review your evidence</button><button class="btn" onclick="go('home')">Main menu</button></div></section>`}
+function go(s){state.screen=s;save();render()}
+function newGame(){state={...state,screen:"map",level:0,unlocked:1,inventory:[],clues:[],visited:[],completed:false,ending:false};save();toast("Your story at Ravenwood begins…");render()}
+function continueGame(){go(state.visited.length?"game":"map")}
+function enterLevel(i){if(i>state.unlocked){toast("This room is still locked. Find more clues first.");return}state.level=i;state.screen="game";if(!state.visited.includes(i))state.visited.push(i);save();render()}
+function inspect(key){
+ let found=clueText[key];
+ if(!found){toast("You find nothing new here. Perhaps another angle?");return}
+ let isNew=!state.clues.includes(key);
+ if(isNew){state.clues.push(key);if(!state.inventory.includes(found[0]))state.inventory.push(found[0]);}
+ if(state.level===0&&state.clues.length>=2)state.unlocked=Math.max(state.unlocked,2);
+ if(state.level===1&&state.clues.length>=3)state.unlocked=Math.max(state.unlocked,3);
+ if(state.level>=2&&state.clues.length>=4)state.unlocked=Math.max(state.unlocked,4);
+ if(state.level>=3&&state.clues.length>=6)state.unlocked=Math.max(state.unlocked,5);
+ if(state.level>=4&&state.clues.length>=8)state.unlocked=Math.max(state.unlocked,6);
+ if(state.level>=5&&state.clues.length>=10)state.unlocked=Math.max(state.unlocked,7);
+ if(key==="clues"&&state.clues.length>=6){state.completed=true;state.screen="ending";save();render();return}
+ save();openModal("clue",found[0],found[1],isNew);
+}
+function advance(){if(state.level<levels.length-1){if(state.level>=state.unlocked){state.unlocked=Math.min(levels.length-1,state.level+1)}enterLevel(Math.min(state.unlocked,state.level+1))}else{state.screen="ending";save();render()}}
+function openModal(type,title="",body="",isNew=false){
+ let old=$("#modal-backdrop");if(old)old.remove();
+ let inner="";
+ if(type==="clue")inner=`<h3>${safe(title)}</h3><p>${safe(body)}</p>${isNew?'<p style="color:var(--cyan);font-size:15px">✦ New evidence added to your journal.</p>':'<p style="color:#9da9ab;font-size:15px">You have already recorded this evidence.</p>'}<button class="btn primary" style="width:100%;margin-top:10px" onclick="closeModal();render()">Return to the room</button>`;
+ if(type==="journal")inner=`<h3>Investigation Journal</h3><p>Every detail matters. Review the evidence you've uncovered so far.</p>${state.clues.length?state.clues.map(k=>`<div class="clue"><strong>${safe(clueText[k]?.[0]||k)}</strong><span>${safe(clueText[k]?.[1]||"A clue from the mansion.")}</span></div>`).join(""):'<p style="color:#8b9a9d">Your journal is empty. Explore rooms and inspect objects to uncover clues.</p>'}<p style="font-size:15px;color:var(--cyan)">Evidence recorded: ${state.clues.length}</p><button class="btn" style="width:100%" onclick="closeModal()">Close journal</button>`;
+ if(type==="inventory")inner=`<h3>Inventory</h3><p>Items and evidence collected during your investigation.</p><div class="item-list" style="margin:18px 0">${state.inventory.length?state.inventory.map(x=>`<span class="item">${safe(x)}</span>`).join(""):'<span style="color:#87969b">Your inventory is empty.</span>'}</div><button class="btn" style="width:100%" onclick="closeModal()">Close inventory</button>`;
+ if(type==="settings")inner=`<h3>Settings</h3><p>Adjust your experience.</p><div class="setting-row"><label for="volume">Ambient sound · <span id="volVal">${state.volume}%</span></label><input id="volume" type="range" min="0" max="100" value="${state.volume}" oninput="state.volume=+this.value;document.querySelector('#volVal').textContent=this.value+'%'"></div><div class="setting-row"><label for="fog">Atmospheric fog · <span id="fogVal">${state.fog}%</span></label><input id="fog" type="range" min="0" max="100" value="${state.fog}" oninput="state.fog=+this.value;document.querySelector('#fogVal').textContent=this.value+'%';document.querySelector('.mist').style.opacity=this.value/70"></div><div class="setting-row"><label><input type="checkbox" ${state.subtitles?"checked":""} onchange="state.subtitles=this.checked"> Show story subtitles</label></div><button class="btn primary" style="width:100%" onclick="save();closeModal();toast('Settings saved')">Save settings</button>`;
+ if(type==="credits")inner=`<h3>Secrets of Ravenwood</h3><p>A gothic mystery about a forgotten name, a house full of secrets, and the clues left behind.</p><p style="color:var(--gold);font-family:Cinzel,serif;font-size:12px;letter-spacing:.15em">LOOK CLOSER. LISTEN CAREFULLY. REMEMBER.</p><button class="btn" style="width:100%" onclick="closeModal()">Return</button>`;
+ let back=document.createElement("div");back.id="modal-backdrop";back.className="modal-backdrop";back.innerHTML=`<div class="modal panel" role="dialog" aria-modal="true"><button class="modal-close" aria-label="Close" onclick="closeModal()">×</button>${inner}</div>`;
+ back.addEventListener("click",e=>{if(e.target===back)closeModal()});document.body.appendChild(back);
+}
+function closeModal(){$("#modal-backdrop")?.remove();save()}
+let toastTimer;function toast(t){let old=$("#toast");if(old)old.remove();let n=document.createElement("div");n.id="toast";n.className="toast";n.textContent=t;document.body.appendChild(n);clearTimeout(toastTimer);toastTimer=setTimeout(()=>n.remove(),2600)}
+let audioCtx=null,osc=null,gain=null;
+function toggleAudio(){state.audio=!state.audio;$("#audioBtn").textContent=state.audio?"♫̸":"♫";if(state.audio){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();osc=audioCtx.createOscillator();gain=audioCtx.createGain();osc.type="sine";osc.frequency.value=55;gain.gain.value=Math.max(0.0001,state.volume/1000);osc.connect(gain);gain.connect(audioCtx.destination);osc.start();toast("Ambient sound enabled")}catch(e){toast("Audio is not supported in this browser")}}else{try{osc?.stop();osc=null;gain=null}catch(e){}toast("Ambient sound muted")}save()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();if(e.code==="Space"&&!$("#modal-backdrop")){e.preventDefault();if(state.screen==="home")newGame();else if(state.screen==="game")advance()}});
+load();render();
+</script>
 </body>
 </html>
